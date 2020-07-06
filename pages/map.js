@@ -5,7 +5,7 @@ import Chart from "react-google-charts";
 import axios from "axios";
 
 // mapboxgl.accessToken =
-//   "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
+// "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
 mapboxgl.accessToken = process.env.ACCESS_KEY;
 
 const mapContainerStyle = {
