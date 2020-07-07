@@ -72,6 +72,8 @@ export default function Map() {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET, POST, PATCH",
           "Access-Control-Allow-Headers": "Origin, Control-Type, X-Auth-Token",
+          // Authorization:
+          //   'Digest username="5edca77ee833d9165b72fd13", realm="SigFox API", nonce="MTU5NDEzNzc0OTMzOTo3ZDQzNTZkMzlkODJkMWM4OTliMzBkNWVhNDg1ZGU1OA==", uri="/v2/device-types/5ed7b65de833d9165b8ef3c8/messages", response="c3b391542ef7a723f58306ace4fa49ca", qop=auth, nc=00000002, cnonce="4299b4d0ab6b5090"',
         },
       });
       console.log(res);
