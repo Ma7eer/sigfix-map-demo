@@ -62,13 +62,26 @@ export default function Map() {
 
   let mapContainer = useRef(null);
 
+  let fetch = async () => {
+    try {
+      let res = await axios({
+        url:
+          "https://5edca77ee833d9165b72fd13:9dad3e98096e120917f3261f4734683e@api.sigfox.com/v2/device-types/5ed7b65de833d9165b8ef3c8/messages",
+        method: "GET",
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PATCH",
+          "Access-Control-Allow-Headers": "Origin, Control-Type, X-Auth-Token",
+        },
+      });
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    axios
-      .get(
-        "https://5edca77ee833d9165b72fd13:9dad3e98096e120917f3261f4734683e@api.sigfox.com/v2/device-types/5ed7b65de833d9165b8ef3c8/messages"
-      )
-      .then((res) => console.log(res))
-      .catch((e) => console.log(e));
+    fetch();
 
     //   increase this
     let bounds = [
