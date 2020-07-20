@@ -3,6 +3,8 @@ import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
 import Chart from "react-google-charts";
 import axios from "axios";
+import socketIOClient from "socket.io-client";
+const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com/";
 
 // mapboxgl.accessToken =
 // "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
@@ -38,57 +40,48 @@ const sideBarStyle2 = {
   backgroundColor: "#404040",
   color: "#ffffff",
   zIndex: "1",
-  padding: "6px",
+  paddingTop: "6px", //6
+  paddingBottom: "6px", //6
+  paddingLeft: "25px", //6
+  paddingRight: "25px", //6
   fontWeight: "bold",
 };
 
 const sideBarStyle3 = {
   display: "inline-block",
   position: "absolute",
-  top: "260px",
+  top: "280px", //260
   left: "0",
   margin: "12px",
   backgroundColor: "#404040",
   color: "#ffffff",
   zIndex: "1",
-  padding: "6px",
-  width: "250px",
+  paddingTop: "6px", //6
+  paddingBottom: "6px", //6
+  paddingLeft: "25px", //6
+  paddingRight: "25px", //6
+  // padding: "6px",
+  // width: "250px",
 };
 
 export default function Map() {
-  const [lng, setLng] = useState(57.47);
-  const [lat, setLat] = useState(22.8);
-  const [zoom, setZoom] = useState(4);
+  const [lng, setLng] = useState(55.47); // 57.47
+  const [lat, setLat] = useState(19.8); // 22.8
+  const [zoom, setZoom] = useState(1);
+  const [markerLng, setMarkerLng] = useState(57.47);
+  const [markerLat, setMarkerLat] = useState(19.8);
 
   let mapContainer = useRef(null);
 
-  let fetch = async () => {
-    try {
-      let res = await axios({
-        url:
-          "https://5edca77ee833d9165b72fd13:9dad3e98096e120917f3261f4734683e@api.sigfox.com/v2/device-types/5ed7b65de833d9165b8ef3c8/messages",
-        method: "GET",
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, PATCH",
-          "Access-Control-Allow-Headers": "Origin, Control-Type, X-Auth-Token",
-          // Authorization:
-          //   'Digest username="5edca77ee833d9165b72fd13", realm="SigFox API", nonce="MTU5NDEzNzc0OTMzOTo3ZDQzNTZkMzlkODJkMWM4OTliMzBkNWVhNDg1ZGU1OA==", uri="/v2/device-types/5ed7b65de833d9165b8ef3c8/messages", response="c3b391542ef7a723f58306ace4fa49ca", qop=auth, nc=00000002, cnonce="4299b4d0ab6b5090"',
-        },
-      });
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   useEffect(() => {
-    fetch();
-
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("data", (data) => {
+      console.log(data);
+    });
     //   increase this
     let bounds = [
-      [50.081944, 15.900659], // Southwest coordinates
-      [61.238926, 26.582236], // Northeast coordinates
+      [51.081944, 16.900659], // Southwest coordinates
+      [62.238926, 27.582236], // Northeast coordinates
     ];
     const map = new mapboxgl.Map({
       container: mapContainer,
@@ -106,15 +99,13 @@ export default function Map() {
       setZoom(map.getZoom().toFixed(2));
     });
 
-    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-    new mapboxgl.Marker().setLngLat([57.673909, 19.646699]).addTo(map);
+    let marker = new mapboxgl.Marker()
+      .setLngLat([57.673909, 20.646699])
+      .addTo(map);
 
-    //     map.addControl(
-    //       new MapboxDirections({
-    //         accessToken: mapboxgl.accessToken
-    //       }),
-    //       "top-right"
-    //     );
+    // setInterval(async () => {
+    //   await marker.setLngLat([markerLng, markerLat]);
+    // }, 10000);
   }, []);
   return (
     <div>
@@ -138,7 +129,9 @@ export default function Map() {
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
         <div style={sideBarStyle2}>
-          <Chart
+          <h2 style={{ textAlign: "center" }}>Temperature</h2>
+          <h1 style={{ textAlign: "center", fontSize: "60px" }}>30 C</h1>
+          {/* <Chart
             style={{
               display: "flex",
               justifyContent: "center",
@@ -159,9 +152,13 @@ export default function Map() {
               minorTicks: 5,
             }}
             rootProps={{ "data-testid": "1" }}
-          />
+          /> */}
         </div>
         <div style={sideBarStyle3}>
+          <h2 style={{ textAlign: "center" }}>Humidity</h2>
+          <h1 style={{ textAlign: "center", fontSize: "60px" }}>20 %</h1>
+        </div>
+        {/* <div style={sideBarStyle3}>
           <strong>Truck ID:</strong> nq98fq347 <br />
           <strong>Current Location:</strong> Nizwa <br />
           <strong>Destination:</strong> Duqm <br />
@@ -177,7 +174,7 @@ export default function Map() {
             <img src="/img/avatar.png" alt="driver" width="180px" />
           </div>
           <strong>Date Time:</strong> 2020-03-02 9:00 AM <br />
-        </div>
+        </div> */}
       </div>
       <div ref={(el) => (mapContainer = el)} style={mapContainerStyle} />
     </div>
