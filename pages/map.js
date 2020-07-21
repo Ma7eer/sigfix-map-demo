@@ -78,7 +78,9 @@ export default function Map() {
     const socket = socketIOClient(ENDPOINT);
     socket.on("data", (data) => {
       console.log(data);
-      setTemp(data["Temp"]);
+      setTemp(parseInt(data["Temp"]));
+      setMarkerLat(data["latitude"]);
+      setMarkerLng(data["longitude"]);
     });
     //   increase this
     let bounds = [
@@ -102,7 +104,7 @@ export default function Map() {
     });
 
     let marker = new mapboxgl.Marker()
-      .setLngLat([57.673909, 20.646699])
+      .setLngLat([markerLng, markerLat])
       .addTo(map);
 
     // setInterval(async () => {
@@ -132,7 +134,9 @@ export default function Map() {
         </div>
         <div style={sideBarStyle2}>
           <h2 style={{ textAlign: "center" }}>Temperature</h2>
-          <h1 style={{ textAlign: "center", fontSize: "60px" }}>{temp} C</h1>
+          <h1 style={{ textAlign: "center", fontSize: "60px" }}>
+            {temp.toFixed(2)} C
+          </h1>
           {/* <Chart
             style={{
               display: "flex",
