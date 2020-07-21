@@ -69,6 +69,7 @@ export default function Map() {
   const [zoom, setZoom] = useState(1);
   const [markerLng, setMarkerLng] = useState(57.47);
   const [markerLat, setMarkerLat] = useState(19.8);
+  const [temp, setTemp] = useState(0);
 
   let mapContainer = useRef(null);
 
@@ -77,6 +78,7 @@ export default function Map() {
     const socket = socketIOClient(ENDPOINT);
     socket.on("data", (data) => {
       console.log(data);
+      setTemp(data["Temp"]);
     });
     //   increase this
     let bounds = [
@@ -130,7 +132,7 @@ export default function Map() {
         </div>
         <div style={sideBarStyle2}>
           <h2 style={{ textAlign: "center" }}>Temperature</h2>
-          <h1 style={{ textAlign: "center", fontSize: "60px" }}>30 C</h1>
+          <h1 style={{ textAlign: "center", fontSize: "60px" }}>{temp} C</h1>
           {/* <Chart
             style={{
               display: "flex",
