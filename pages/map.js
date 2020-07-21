@@ -63,7 +63,7 @@ const sideBarStyle3 = {
 };
 
 export default function Map() {
-  const socket = socketIOClient(ENDPOINT);
+  // const socket = socketIOClient(ENDPOINT);
 
   const [lng, setLng] = useState(55.47); // 57.47
   const [lat, setLat] = useState(19.8); // 22.8
@@ -74,9 +74,9 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
-    socket.on("data", (data) => {
-      console.log(data);
-    });
+    // socket.on("data", (data) => {
+    //   console.log(data);
+    // });
     //   increase this
     let bounds = [
       [51.081944, 16.900659], // Southwest coordinates
