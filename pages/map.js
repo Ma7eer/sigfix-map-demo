@@ -73,7 +73,6 @@ export default function Map() {
 
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
-    socket.on("connection", () => console.log("connected"));
     // socket.on("data", (data) => {
     //   console.log(data);
     // });
