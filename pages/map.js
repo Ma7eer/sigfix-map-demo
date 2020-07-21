@@ -72,6 +72,7 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
+    document.cookie = "promo_shown=1; Max-Age=2600000; Secure";
     // const socket = socketIOClient(ENDPOINT);
     // socket.on("data", (data) => {
     //   console.log(data);
