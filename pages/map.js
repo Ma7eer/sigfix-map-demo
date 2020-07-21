@@ -106,9 +106,10 @@ export default function Map() {
       .setLngLat([markerLng, markerLat])
       .addTo(map);
 
-    setInterval(async () => {
-      await marker.setLngLat([markerLng, markerLat]).addTo(map);
-    }, 10000);
+    setInterval(() => {
+      console.log("yo");
+      marker.setLngLat([markerLng, markerLat]);
+    }, 5000);
   }, []);
   return (
     <div>
