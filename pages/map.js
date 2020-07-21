@@ -1,8 +1,6 @@
 import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
-import Chart from "react-google-charts";
-import axios from "axios";
 import socketIOClient from "socket.io-client";
 const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com/";
 
@@ -65,6 +63,8 @@ const sideBarStyle3 = {
 };
 
 export default function Map() {
+  const socket = socketIOClient(ENDPOINT);
+
   const [lng, setLng] = useState(55.47); // 57.47
   const [lat, setLat] = useState(19.8); // 22.8
   const [zoom, setZoom] = useState(1);
@@ -74,7 +74,6 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
     socket.on("data", (data) => {
       console.log(data);
     });
