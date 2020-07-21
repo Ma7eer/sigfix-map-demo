@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
+// const ENDPOINT = "http://localhost:4000";
 
 // mapboxgl.accessToken =
 // "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
@@ -72,11 +73,11 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
-    document.cookie = "promo_shown=1; Max-Age=2600000; Secure";
-    // const socket = socketIOClient(ENDPOINT);
-    // socket.on("data", (data) => {
-    //   console.log(data);
-    // });
+    // document.cookie = "S";
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("data", (data) => {
+      console.log(data);
+    });
     //   increase this
     let bounds = [
       [51.081944, 16.900659], // Southwest coordinates

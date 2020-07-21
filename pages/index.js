@@ -1,18 +1,14 @@
 import Head from "next/head";
 import Link from "next/link";
-// import socketIOClient from "socket.io-client";
-const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
-// const ENDPOINT = "http://localhost:4000";
 
-import * as io from "socket.io-client";
+// import * as io from "socket.io-client";
 
-// Socket
-import SocketContext from "../components/socket-context";
+// // Socket
+// import SocketContext from "../components/socket-context";
 
-const socket = io(ENDPOINT);
+// const socket = io(ENDPOINT);
 
 const Index = () => {
-  // socketIOClient(ENDPOINT);
   return (
     <div>
       <Head>
