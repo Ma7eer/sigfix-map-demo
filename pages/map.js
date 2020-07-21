@@ -102,13 +102,13 @@ export default function Map() {
       setZoom(map.getZoom().toFixed(2));
     });
 
-    let marker = new mapboxgl.Marker()
-      .setLngLat([markerLng, markerLat])
-      .addTo(map);
+    // let marker =
+    new mapboxgl.Marker().setLngLat([markerLng, markerLat]).addTo(map);
 
     setInterval(() => {
       console.log("yo");
-      marker.setLngLat([markerLng, markerLat]);
+      // marker.setLngLat([markerLng, markerLat]);
+      new mapboxgl.Marker().setLngLat([markerLng, markerLat]).addTo(map);
     }, 5000);
   }, []);
   return (
