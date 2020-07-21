@@ -78,8 +78,8 @@ export default function Map() {
     socket.on("data", (data) => {
       console.log(data);
       setTemp(parseInt(data["Temp"]));
-      setMarkerLat(data["latitude"]);
-      setMarkerLng(data["longitude"]);
+      setMarkerLat(parseInt(data["latitude"]));
+      setMarkerLng(parseInt(data["longitude"]));
     });
     //   increase this
     let bounds = [
