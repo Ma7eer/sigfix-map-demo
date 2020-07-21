@@ -74,7 +74,6 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
-    // document.cookie = "S";
     const socket = socketIOClient(ENDPOINT);
     socket.on("data", (data) => {
       console.log(data);
@@ -107,9 +106,9 @@ export default function Map() {
       .setLngLat([markerLng, markerLat])
       .addTo(map);
 
-    // setInterval(async () => {
-    //   await marker.setLngLat([markerLng, markerLat]);
-    // }, 10000);
+    setInterval(async () => {
+      await marker.setLngLat([markerLng, markerLat]);
+    }, 10000);
   }, []);
   return (
     <div>
