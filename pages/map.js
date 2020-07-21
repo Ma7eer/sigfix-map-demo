@@ -63,8 +63,6 @@ const sideBarStyle3 = {
 };
 
 export default function Map() {
-  // const socket = socketIOClient(ENDPOINT);
-
   const [lng, setLng] = useState(55.47); // 57.47
   const [lat, setLat] = useState(19.8); // 22.8
   const [zoom, setZoom] = useState(1);
@@ -74,6 +72,8 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("connection", () => console.log("connected"));
     // socket.on("data", (data) => {
     //   console.log(data);
     // });
