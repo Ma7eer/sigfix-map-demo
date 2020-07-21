@@ -2,7 +2,7 @@ import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com/";
+const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
 
 // mapboxgl.accessToken =
 // "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
@@ -72,7 +72,7 @@ export default function Map() {
   let mapContainer = useRef(null);
 
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
+    // const socket = socketIOClient(ENDPOINT);
     // socket.on("data", (data) => {
     //   console.log(data);
     // });
