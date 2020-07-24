@@ -76,15 +76,19 @@ export default function Map() {
   useEffect(() => {
     const socket = socketIOClient(ENDPOINT);
     socket.on("data", (data) => {
-      console.log(data);
+      console.log(data["latitude"]);
       setTemp(parseInt(data["Temp"]));
       setMarkerLat(parseInt(data["latitude"]));
       setMarkerLng(parseInt(data["longitude"]));
+      marker.setLngLat([
+        parseInt(data["longitude"]),
+        parseInt(data["latitude"]),
+      ]);
     });
     //   increase this
     let bounds = [
-      [51.081944, 16.900659], // Southwest coordinates
-      [62.238926, 27.582236], // Northeast coordinates
+      [50.081944, 15.900659], // Southwest coordinates
+      [63.238926, 28.582236], // Northeast coordinates
     ];
     const map = new mapboxgl.Map({
       container: mapContainer,
@@ -102,14 +106,9 @@ export default function Map() {
       setZoom(map.getZoom().toFixed(2));
     });
 
-    // let marker =
-    new mapboxgl.Marker().setLngLat([markerLng, markerLat]).addTo(map);
-
-    setInterval(() => {
-      console.log("yo");
-      // marker.setLngLat([markerLng, markerLat]);
-      new mapboxgl.Marker().setLngLat([markerLng, markerLat]).addTo(map);
-    }, 5000);
+    let marker = new mapboxgl.Marker()
+      .setLngLat([markerLng, markerLat])
+      .addTo(map);
   }, []);
   return (
     <div>
