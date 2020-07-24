@@ -5,6 +5,8 @@ import socketIOClient from "socket.io-client";
 const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
 // const ENDPOINT = "http://localhost:4000";
 
+import Loader from "react-loader-spinner";
+
 // mapboxgl.accessToken =
 // "pk.eyJ1IjoibWE3ZWVyIiwiYSI6ImNrN2J2aTd0NzAxMWwzbnBxMmoyb3BlcmgifQ.CEJCp-jGZO4pQWT68WSA8g";
 mapboxgl.accessToken = process.env.ACCESS_KEY;
@@ -23,11 +25,15 @@ const sideBarStyle1 = {
   top: "0",
   left: "0",
   margin: "12px",
-  backgroundColor: "#404040",
+  // backgroundColor: "#404040",
+  background:
+    "radial-gradient( circle farthest-corner at 10% 20%,  rgba(90,92,106,1) 0%, rgba(32,45,58,1) 81.3% )",
   color: "#ffffff",
   zIndex: "1",
   padding: "6px",
   fontWeight: "bold",
+  textShadow: "2px 2px 2px #000",
+  borderRadius: "2px",
 };
 
 const sideBarStyle2 = {
@@ -36,7 +42,9 @@ const sideBarStyle2 = {
   top: "50px",
   left: "0",
   margin: "12px",
-  backgroundColor: "#404040",
+  // backgroundColor: "#404040",
+  background:
+    "radial-gradient( circle farthest-corner at 10% 20%,  rgba(90,92,106,1) 0%, rgba(32,45,58,1) 81.3% )",
   color: "#ffffff",
   zIndex: "1",
   paddingTop: "6px", //6
@@ -44,6 +52,8 @@ const sideBarStyle2 = {
   paddingLeft: "25px", //6
   paddingRight: "25px", //6
   fontWeight: "bold",
+  textShadow: "2px 2px 2px #000",
+  borderRadius: "2px",
 };
 
 const sideBarStyle3 = {
@@ -52,15 +62,19 @@ const sideBarStyle3 = {
   top: "280px", //260
   left: "0",
   margin: "12px",
-  backgroundColor: "#404040",
+  // backgroundColor: "#404040",
+  background:
+    "radial-gradient( circle farthest-corner at 10% 20%,  rgba(90,92,106,1) 0%, rgba(32,45,58,1) 81.3% )",
   color: "#ffffff",
   zIndex: "1",
   paddingTop: "6px", //6
   paddingBottom: "6px", //6
-  paddingLeft: "25px", //6
-  paddingRight: "25px", //6
+  paddingLeft: "28px", //6
+  paddingRight: "28px", //6
   // padding: "6px",
   // width: "250px",
+  textShadow: "2px 2px 2px #000",
+  borderRadius: "2px",
 };
 
 export default function Map() {
@@ -70,27 +84,40 @@ export default function Map() {
   const [markerLng, setMarkerLng] = useState(57.47);
   const [markerLat, setMarkerLat] = useState(19.8);
   const [temp, setTemp] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   let mapContainer = useRef(null);
 
   useEffect(() => {
+    setLoading(true);
+
     const socket = socketIOClient(ENDPOINT);
-    socket.on("data", (data) => {
-      console.log(data["latitude"]);
-      setTemp(parseInt(data["Temp"]));
-      setMarkerLat(parseInt(data["latitude"]));
-      setMarkerLng(parseInt(data["longitude"]));
-      marker.setLngLat([
-        parseInt(data["longitude"]),
-        parseInt(data["latitude"]),
-      ]);
+    socket.on("data", async (data) => {
+      await setLoading(true);
+      setTimeout(async () => {
+        await setTemp(parseFloat(data["Temp"]));
+        await setMarkerLat(parseFloat(data["latitude"]));
+        await setMarkerLng(parseFloat(data["longitude"]));
+        await marker.setLngLat([
+          parseFloat(data["longitude"]),
+          parseFloat(data["latitude"]),
+        ]);
+        map.flyTo({
+          center: [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
+          zoom: 18,
+        });
+        await setLoading(false);
+      }, 500);
     });
-    //   increase this
+
+    // Map bound
     let bounds = [
       [50.081944, 15.900659], // Southwest coordinates
       [63.238926, 28.582236], // Northeast coordinates
     ];
-    const map = new mapboxgl.Map({
+
+    // create a map
+    var map = new mapboxgl.Map({
       container: mapContainer,
       style: "mapbox://styles/mapbox/light-v10",
       center: [lng, lat],
@@ -100,16 +127,21 @@ export default function Map() {
     // streets-v11
     // light-v10
 
+    // when we pan this happens
     map.on("move", () => {
       setLng(map.getCenter().lng.toFixed(4));
       setLat(map.getCenter().lat.toFixed(4));
       setZoom(map.getZoom().toFixed(2));
     });
 
+    // create a marker
     let marker = new mapboxgl.Marker()
       .setLngLat([markerLng, markerLat])
       .addTo(map);
+
+    setLoading(false);
   }, []);
+
   return (
     <div>
       <Head>
@@ -125,62 +157,82 @@ export default function Map() {
           href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.2/mapbox-gl-directions.css"
           type="text/css"
         />
-        {/* <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.2/mapbox-gl-directions.js"></script> */}
       </Head>
-      <div>
+      <div style={{ fontFamily: "sans-serif" }}>
         <div style={sideBarStyle1}>
           Longitude: {lng} | Latitude: {lat} | Zoom: {zoom}
         </div>
         <div style={sideBarStyle2}>
           <h2 style={{ textAlign: "center" }}>Temperature</h2>
           <h1 style={{ textAlign: "center", fontSize: "60px" }}>
-            {temp.toFixed(2)} C
+            {loading ? (
+              <div style={{ padding: "6px 10px 6px 10px" }}>
+                <Loader
+                  type="Grid"
+                  color="#3fb1ce"
+                  height={50}
+                  width={50}
+                  timeout={100000} //3 secs
+                />
+              </div>
+            ) : (
+              temp.toFixed(0) + " C"
+            )}
           </h1>
-          {/* <Chart
-            style={{
-              display: "flex",
-              justifyContent: "center",
-            }}
-            width={250}
-            height={180}
-            chartType="Gauge"
-            loader={<div>Loading Chart</div>}
-            data={[
-              ["Label", "Value"],
-              ["Temperature", 80],
-            ]}
-            options={{
-              redFrom: 90,
-              redTo: 100,
-              yellowFrom: 75,
-              yellowTo: 90,
-              minorTicks: 5,
-            }}
-            rootProps={{ "data-testid": "1" }}
-          /> */}
         </div>
         <div style={sideBarStyle3}>
           <h2 style={{ textAlign: "center" }}>Humidity</h2>
-          <h1 style={{ textAlign: "center", fontSize: "60px" }}>20 %</h1>
+          <h1 style={{ textAlign: "center", fontSize: "60px" }}>
+            {" "}
+            {loading ? (
+              <div style={{ padding: "6px 41px 6px 41px" }}>
+                <Loader
+                  type="Grid"
+                  color="#3fb1ce"
+                  height={50}
+                  width={50}
+                  timeout={100000} //3 secs
+                />
+              </div>
+            ) : (
+              "20 %"
+            )}
+          </h1>
         </div>
-        {/* <div style={sideBarStyle3}>
-          <strong>Truck ID:</strong> nq98fq347 <br />
-          <strong>Current Location:</strong> Nizwa <br />
-          <strong>Destination:</strong> Duqm <br />
-          <strong>Driver:</strong> Fulan bin Fulan <br />
+      </div>
+      {loading ? (
+        <div
+          style={{
+            display: "inline-block",
+            position: "absolute",
+            top: "0",
+            right: "0",
+            margin: "12px",
+            zIndex: "1",
+            padding: "6px",
+            fontWeight: "bold",
+            color: "#3fb1ce",
+          }}
+        >
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
-              marginTop: "10px",
-              marginBottom: "10px",
+              flexDirection: "column",
+              alignItems: "center",
             }}
           >
-            <img src="/img/avatar.png" alt="driver" width="180px" />
+            <Loader
+              type="Rings"
+              color="#3fb1ce"
+              height={80}
+              width={80}
+              timeout={100000} //3 secs
+            />
+            Loading...
           </div>
-          <strong>Date Time:</strong> 2020-03-02 9:00 AM <br />
-        </div> */}
-      </div>
+        </div>
+      ) : null}
+
       <div ref={(el) => (mapContainer = el)} style={mapContainerStyle} />
     </div>
   );
