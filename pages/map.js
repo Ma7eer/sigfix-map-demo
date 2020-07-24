@@ -85,6 +85,7 @@ export default function Map() {
   const [markerLat, setMarkerLat] = useState(19.8);
   const [temp, setTemp] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [coordinates, setRouteCoordinates] = useState([]);
 
   let mapContainer = useRef(null);
 
@@ -106,6 +107,22 @@ export default function Map() {
           center: [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
           zoom: 18,
         });
+        setRouteCoordinates((prevState) => {
+          let copy = prevState;
+          copy.push([
+            parseFloat(data["longitude"]),
+            parseFloat(data["latitude"]),
+          ]);
+          return copy;
+        });
+        map.getSource("route").setData({
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates,
+          },
+        });
         await setLoading(false);
       }, 500);
     });
@@ -119,7 +136,7 @@ export default function Map() {
     // create a map
     var map = new mapboxgl.Map({
       container: mapContainer,
-      style: "mapbox://styles/mapbox/light-v10",
+      style: "mapbox://styles/mapbox/streets-v11",
       center: [lng, lat],
       zoom: zoom,
       maxBounds: bounds, // Sets bounds as max
@@ -140,6 +157,33 @@ export default function Map() {
       .addTo(map);
 
     setLoading(false);
+
+    map.on("load", function () {
+      map.addSource(`route`, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: coordinates,
+          },
+        },
+      });
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": "#888",
+          "line-width": 8,
+        },
+      });
+    });
   }, []);
 
   return (
