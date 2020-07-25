@@ -3,8 +3,8 @@ import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
 import axios from "axios";
-// const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
-const ENDPOINT = "http://localhost:4000";
+const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
+// const ENDPOINT = "http://localhost:4000";
 
 import Loader from "react-loader-spinner";
 
