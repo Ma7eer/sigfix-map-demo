@@ -2,8 +2,9 @@ import Head from "next/head";
 import mapboxgl from "mapbox-gl";
 import { useState, useEffect, useRef } from "react";
 import socketIOClient from "socket.io-client";
-const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
-// const ENDPOINT = "http://localhost:4000";
+import axios from "axios";
+// const ENDPOINT = "https://guarded-dusk-46450.herokuapp.com";
+const ENDPOINT = "http://localhost:4000";
 
 import Loader from "react-loader-spinner";
 
@@ -85,66 +86,59 @@ export default function Map() {
   const [markerLat, setMarkerLat] = useState(19.8);
   const [temp, setTemp] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [coordinates, setRouteCoordinates] = useState([]);
+  const [routeCoordinates, setRouteCoordinates] = useState([]);
 
   let mapContainer = useRef(null);
 
-  useEffect(() => {
-    setLoading(true);
+  const fetchData = async () => {
+    try {
+      let res = await axios({
+        url: `${ENDPOINT}/location`,
+        method: "GET",
+      });
+      return res.data.data;
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    const socket = socketIOClient(ENDPOINT);
-    socket.on("data", async (data) => {
-      await setLoading(true);
-      setTimeout(async () => {
-        await setTemp(parseFloat(data["Temp"]));
-        await setMarkerLat(parseFloat(data["latitude"]));
-        await setMarkerLng(parseFloat(data["longitude"]));
-        await marker.setLngLat([
-          parseFloat(data["longitude"]),
-          parseFloat(data["latitude"]),
-        ]);
-        map.flyTo({
-          center: [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
-          zoom: 18,
-        });
-        setRouteCoordinates((prevState) => {
-          let copy = prevState;
-          copy.push([
+  const postData = async (data) => {
+    try {
+      let req = await axios({
+        url: `${ENDPOINT}/location`,
+        method: "POST",
+        data: {
+          Temp: parseFloat(data["Temp"]),
+          latitude: parseFloat(data["latitude"]),
+          longitude: parseFloat(data["longitude"]),
+          coordinates: [
             parseFloat(data["longitude"]),
             parseFloat(data["latitude"]),
-          ]);
-          return copy;
-        });
-        map.getSource("route").setData({
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: coordinates,
-          },
-        });
-        await setLoading(false);
-      }, 500);
-    });
+          ],
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    // Map bound
-    let bounds = [
+  useEffect(() => {
+    /* REGION:RENDER MAP */
+    let mapBounds = [
       [50.081944, 15.900659], // Southwest coordinates
       [63.238926, 28.582236], // Northeast coordinates
     ];
 
-    // create a map
+    // create a map instance
     var map = new mapboxgl.Map({
       container: mapContainer,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/streets-v11", // streets-v11 // light-v10
       center: [lng, lat],
       zoom: zoom,
-      maxBounds: bounds, // Sets bounds as max
+      maxBounds: mapBounds,
     });
-    // streets-v11
-    // light-v10
 
-    // when we pan this happens
+    // Update on pan
     map.on("move", () => {
       setLng(map.getCenter().lng.toFixed(4));
       setLat(map.getCenter().lat.toFixed(4));
@@ -155,35 +149,117 @@ export default function Map() {
     let marker = new mapboxgl.Marker()
       .setLngLat([markerLng, markerLat])
       .addTo(map);
+    /* END_REGION:RENDER MAP */
 
-    setLoading(false);
+    /* REGION:FETCH DATA */
+    setLoading(true);
 
-    map.on("load", function () {
-      map.addSource(`route`, {
-        type: "geojson",
-        data: {
+    fetchData().then((res) => {
+      let temperature = res.data ? res.data["Temp"] : temp;
+      let longitude = res.data ? res.data["longitude"] : markerLng;
+      let latitude = res.data ? res.data["latitude"] : markerLat;
+      // moving marker
+      marker.setLngLat([longitude, latitude]);
+
+      // Store data in state
+      setTemp(temperature);
+      setMarkerLng(longitude);
+      setMarkerLat(latitude);
+
+      let coordinatesArray = res.coordinates.map((coordinate) => {
+        return [...coordinate.coordinates];
+      });
+
+      // create route on map
+      map.on("load", () => {
+        map.addSource(`route`, {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: coordinatesArray,
+            },
+          },
+        });
+        map.addLayer({
+          id: "route",
+          type: "line",
+          source: "route",
+          layout: {
+            "line-join": "round",
+            "line-cap": "round",
+          },
+          paint: {
+            "line-color": "#888",
+            "line-width": 8,
+          },
+        });
+      });
+
+      // Store in state
+      setRouteCoordinates((prevState) => [...prevState, ...coordinatesArray]);
+
+      setLoading(false);
+    });
+    /* END_REGION:FETCH DATA */
+
+    /* REGION:SOCKET */
+    const socket = socketIOClient(ENDPOINT);
+    socket.on("data", (data) => {
+      // fake loading effect
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+
+      // update marker location
+      marker.setLngLat([
+        parseFloat(data["longitude"]),
+        parseFloat(data["latitude"]),
+      ]);
+
+      // store data in state
+      setTemp(parseFloat(data["Temp"]));
+      setMarkerLng(parseFloat(data["longitude"]));
+      setMarkerLat(parseFloat(data["latitude"]));
+
+      // zoom into the location of the marker
+      map.flyTo({
+        center: [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
+        zoom: 18,
+      });
+
+      fetchData().then((res) => {
+        let coordinatesArray = res.coordinates.map((coordinate) => {
+          return [...coordinate.coordinates];
+        });
+
+        // update route
+        map.getSource("route").setData({
           type: "Feature",
           properties: {},
           geometry: {
             type: "LineString",
-            coordinates: coordinates,
+            coordinates: [
+              ...coordinatesArray,
+              [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
+            ],
           },
-        },
+        });
+
+        // store data in state
+        setRouteCoordinates((prevState) => [
+          ...prevState,
+          [parseFloat(data["longitude"]), parseFloat(data["latitude"])],
+        ]);
       });
-      map.addLayer({
-        id: "route",
-        type: "line",
-        source: "route",
-        layout: {
-          "line-join": "round",
-          "line-cap": "round",
-        },
-        paint: {
-          "line-color": "#888",
-          "line-width": 8,
-        },
-      });
+
+      // post data to database
+      postData(data);
     });
+    /* END_REGION:SOCKET */
   }, []);
 
   return (
@@ -220,7 +296,7 @@ export default function Map() {
                 />
               </div>
             ) : (
-              temp.toFixed(0) + " C"
+              temp + " C"
             )}
           </h1>
         </div>
