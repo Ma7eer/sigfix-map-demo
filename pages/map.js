@@ -296,7 +296,7 @@ export default function Map() {
                 />
               </div>
             ) : (
-              temp + " C"
+              parseInt(temp) + " C"
             )}
           </h1>
         </div>
